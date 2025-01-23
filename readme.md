@@ -1,9 +1,9 @@
-# Benchmark report for webpage experience for popular shoe apparel companies
+# A web experience benchmark report of popular footwear companies
 
 ### Data Source
 
-- Using Google's BigQuery interface at https://console.cloud.google.com/bigquery I was able to query the crux data set
-- the dataset is named: `chrome-ux-report`
+- Using Google's BigQuery interface at https://console.cloud.google.com/bigquery - query the crux data set
+- Dataset: `chrome-ux-report`
 
 - SQL query example:
 
@@ -23,11 +23,11 @@ or origin='https://www.reebok.com/')
 
 #
 
-There are a number of tables with in the `chrome-ux-report`, many have a histogram type layout and are very data instensive.  
+There are a number of tables within the `chrome-ux-report`, many have a histogram type layout and are very data intensive.  
 
-Given that, I quickly hit my data quotas, so I changed the scope of this report to fit wihin what I could query for (for free)
+Given that, data quotas were met, therefore the scope of this report was adjusted to what could be queried within the free tier.
 
-Looking at the `materialized` table and by `country_summary`, I was able to extract enough useful information to make a reasonbly helpful report in R
+Looking at the `materialized` table and by `country_summary`, there was enough useful information to make a reasonably helpful report in R
 
 ### Steps
 

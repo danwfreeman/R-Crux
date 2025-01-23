@@ -106,6 +106,13 @@ all_grouped_average_data_long <- all_grouped_average_data %>%
 min_value2 <- min(all_grouped_average_data$avg_fast_lcp)
 max_value2 <- max(all_grouped_average_data$avg_fast_lcp)
 
+# Lookup function to rename groups
+legend_lookup <- function(x) {
+  lookup_table <- c("avg_fast_lcp" = "Fast LCP", "avg_p75_lcp" = "LCP")
+  print(x)
+  return(lookup_table[x])
+}
+
 # Create the bar plot
 ggplot(all_grouped_average_data_long, aes(x = origin, y = mean_value, fill = variable)) +
   geom_bar(stat = "identity", position = "dodge") +  # Position bars side by side
@@ -118,6 +125,10 @@ ggplot(all_grouped_average_data_long, aes(x = origin, y = mean_value, fill = var
       name = "Average Percentage of Fast LCP"
     )  # Secondary y-axis for 'avg_value2'
   ) +
+  scale_fill_manual(
+    values = c("avg_fast_lcp" = "royalblue4", "avg_p75_lcp" = "salmon2"),
+    labels = c("Fast LCP Percent", "LCP")
+  ) +   
   theme_minimal()
 
 
