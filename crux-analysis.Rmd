@@ -7,7 +7,29 @@ output:
   html_document: default
 ---
 
-# setup env
+### Data Source
+
+- Using Google's BigQuery interface at https://console.cloud.google.com/bigquery - query the crux data set
+- Dataset: `chrome-ux-report`
+
+
+There are a number of tables within the `chrome-ux-report`, many have a histogram type layout and are very data intensive.  
+
+Given that, data quotas were met, therefore the scope of this report was adjusted to what could be queried within the free tier.
+
+Looking at the `materialized` table and by `country_summary`, there was enough useful information to make a reasonably helpful report in R
+
+### Steps
+
+- get data from BigQuery, repeat sql states, as shown above, for each month (note data is aggregated by month in BigQuery)
+- export each query result to a .csv file
+- in **R Studio**: create datasets and show a series of  graphs to demonstrate how different companies rank against each other. 
+- goal: show how the user experiences differ from site to site.
+
+### Cavets
+
+- This data is from Jan, Feb, March of 2004
+- Data is origin based, meaning it is an aggregate of all pages and subpages throughout the entire domain
 
 
 ```{r setup env, echo=FALSE, message=FALSE}
@@ -45,7 +67,7 @@ all_data$date_type <- ym(all_data$yyyymm)
 ```
 
 
-# Show the FCP 
+## Starting with the First Contentful Paint, we get our first glance on how these companies compare
 
 ```{r show fcp, echo=FALSE, warning=FALSE}
 ggplot(all_data, aes(x=date_type, y=p75_fcp, group=origin, color=origin)) +
@@ -65,6 +87,8 @@ ggplot(all_data, aes(x=date_type, y=p75_fcp, group=origin, color=origin)) +
   ) 
 ```
 
+## Next we look at Largest Contentful Paint, we can see the rankings remain fairly similar
+
 ```{r show lcp, echo=FALSE, warning=FALSE}
 ggplot(all_data, aes(x=date_type, y=p75_lcp, group=origin, color=origin)) +
   geom_line() +
@@ -83,6 +107,7 @@ ggplot(all_data, aes(x=date_type, y=p75_lcp, group=origin, color=origin)) +
   ) 
 ```
 
+## Moving to Time to First Byte, we see a few deviations from the previous graphs, however it's making us want to dig deeper to explain the why LCP scores differ
 
 ```{r show ttfb, echo=FALSE, warning=FALSE}  
 ggplot(all_data, aes(x=date_type, y=p75_ttfb, group=origin, color=origin)) +
@@ -114,6 +139,9 @@ lookup <- function(x) {
 }
 ```
 
+## For the fun of it, let's look at the percentage of users that were on desktop by company, we can assume the rest of the users were on mobile.
+## We can see that Under Armour's users definitely prefer mobile web.
+
 ```{r bar plot, echo=FALSE, warning=FALSE}
 # Create the bar plot
 ggplot(all_average_data, aes(x = origin, y = avg_value, fill = origin)) +
@@ -123,7 +151,12 @@ ggplot(all_average_data, aes(x = origin, y = avg_value, fill = origin)) +
   theme_minimal()
 ```
 
-
+## Digging further into the LCP metric, this shows the precentage of users that experience a 'Fast LCP', meaning the LCP score was under 2.5 seconds.
+## The faster the p75 LCP, we would assume that we'd have more users in the 'Fast LCP' bucket
+## This holds true for New Balance, it's fast and they have a big Fast LCP bucket
+## Conversely for Nike, it's rather slow and thusly a small LCP bucket
+## Adidas in the the middle for both p75 LCP and, as predicted, the Fast LCP bucket
+## But what is going on with Under Armour, it's LCP is good but it has the *smallest* Fast LCP bucket
 
 ```{r grouped data, echo=FALSE}
 all_grouped_average_data <- all_data %>%
@@ -141,6 +174,9 @@ min_value2 <- min(all_grouped_average_data$avg_fast_lcp)
 max_value2 <- max(all_grouped_average_data$avg_fast_lcp)
 
 ```
+
+
+
 
 ```{r bar grouped data, echo=FALSE, warning=FALSE}
 # Create the bar plot
@@ -168,6 +204,10 @@ all_average_4g_data <- all_data %>%
   group_by(origin) %>%
   summarise(avg_value = mean(X_4GDensity))
 ```
+
+## Exploring more RUM metrics, we can inspect the percetage of users that are on 4G networks or better
+## Under Armour has the smallest amount of 4G users.  This would explain the smaller Fast LCP bucket shown in the previous bar graph.
+## It would also infer that Under Armour would have an even better overall LCP score if they had a higher percentage of users utilizing fast networks.
 
 ```{r final 4g, echo=FALSE, warning=FALSE}
 # Create the bar plot
